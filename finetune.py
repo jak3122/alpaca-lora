@@ -1,6 +1,8 @@
 import os
 import sys
 from typing import List
+import sky_callback
+from sky_callback import SkyTransformersCallback
 
 import fire
 import torch
@@ -232,6 +234,7 @@ def train(
         data_collator=transformers.DataCollatorForSeq2Seq(
             tokenizer, pad_to_multiple_of=8, return_tensors="pt", padding=True
         ),
+        callbacks=[SkyTransformersCallback()],
     )
     model.config.use_cache = False
 
