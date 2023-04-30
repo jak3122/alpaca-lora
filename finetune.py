@@ -142,7 +142,7 @@ def train(
         return result
 
     def generate_and_tokenize_prompt(data_point):
-        full_prompt = data_point
+        full_prompt = data_point["text"]
         tokenized_full_prompt = tokenize(full_prompt)
         return tokenized_full_prompt
 
@@ -222,7 +222,7 @@ def train(
             eval_steps=200 if val_set_size > 0 else None,
             save_steps=200,
             output_dir=output_dir,
-            save_total_limit=3,
+            save_total_limit=1,
             load_best_model_at_end=True if val_set_size > 0 else False,
             ddp_find_unused_parameters=False if ddp else None,
             group_by_length=group_by_length,
