@@ -54,6 +54,9 @@ def train(
     wandb_log_model: str = "",  # options: false | true
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
     prompt_template_name: str = "alpaca",  # The prompt template to use, will default to alpaca.
+    # training params
+    save_steps: int = 100,
+    eval_steps: int = 100,
 ):
     if int(os.environ.get("LOCAL_RANK", 0)) == 0:
         print(
@@ -80,6 +83,8 @@ def train(
             f"wandb_log_model: {wandb_log_model}\n"
             f"resume_from_checkpoint: {resume_from_checkpoint or False}\n"
             f"prompt template: {prompt_template_name}\n"
+            f"save_steps: {save_steps}\n"
+            f"eval_steps: {eval_steps}\n"
         )
     assert (
         base_model
@@ -219,8 +224,8 @@ def train(
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
             save_strategy="steps",
-            eval_steps=200 if val_set_size > 0 else None,
-            save_steps=200,
+            eval_steps=eval_steps if val_set_size > 0 else None,
+            save_steps=save_steps,
             output_dir=output_dir,
             save_total_limit=1,
             load_best_model_at_end=True if val_set_size > 0 else False,
