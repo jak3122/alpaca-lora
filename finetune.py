@@ -33,6 +33,7 @@ def train(
     micro_batch_size: int = 4,
     warmup_steps: int = 100,
     num_epochs: int = 3,
+    logging_steps: int = 10,
     learning_rate: float = 3e-4,
     cutoff_len: int = 256,
     val_set_size: int = 2000,
@@ -70,6 +71,7 @@ def train(
             f"warmup_steps: {warmup_steps}\n"
             f"num_epochs: {num_epochs}\n"
             f"learning_rate: {learning_rate}\n"
+            f"logging_steps: {logging_steps}\n"
             f"cutoff_len: {cutoff_len}\n"
             f"val_set_size: {val_set_size}\n"
             f"lora_r: {lora_r}\n"
@@ -222,7 +224,7 @@ def train(
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
             fp16=True,
-            logging_steps=10,
+            logging_steps=logging_steps,
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
             save_strategy="steps",
