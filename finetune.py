@@ -220,6 +220,8 @@ def train(
         args=transformers.TrainingArguments(
             per_device_train_batch_size=micro_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
+            per_device_eval_batch_size=micro_batch_size,
+            eval_accumulation_steps=gradient_accumulation_steps,
             warmup_steps=warmup_steps,
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
