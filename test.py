@@ -112,8 +112,8 @@ def main(
     output_dir: str = OUTPUT_DIR,
 ):
     loras = [
-        "chess_100k",
-        "chess_100k_2"
+        "chessbot_100k",
+        "chessbot_100k_2"
     ]
 
     configs = [
