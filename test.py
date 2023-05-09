@@ -108,13 +108,10 @@ def test(
 
 def main(
     lora_root: str,
+    loras: List[str],
     prompts_path: str,
     output_dir: str = OUTPUT_DIR,
 ):
-    loras = [
-        "chessbot_100k",
-        "chessbot_100k_2"
-    ]
 
     configs = [
         {
