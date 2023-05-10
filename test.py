@@ -130,7 +130,8 @@ def main(
     for lora in loras:
         for config in configs:
             test(
-                lora_weights=os.path.join(lora_root, lora),
+                # if lora is "base", don't load a lora
+                lora_weights=os.path.join(lora_root, lora) if lora != "base" else "",
                 prompts=prompts,
                 output_dir=output_dir,
                 test_name=f"{lora}",
