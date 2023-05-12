@@ -225,6 +225,7 @@ def train(
             warmup_steps=warmup_steps,
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
+            lr_scheduler_type="cosine",
             fp16=True,
             logging_steps=logging_steps,
             optim="adamw_torch",
