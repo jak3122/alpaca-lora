@@ -115,8 +115,14 @@ def train(
     if len(wandb_log_model) > 0:
         os.environ["WANDB_LOG_MODEL"] = wandb_log_model
 
+    # model cache dir
+    cache_dir = os.environ.get("CACHE_DIR", "./cache")
+    if not os.path.exists(cache_dir):
+        os.makedirs(cache_dir)
+
     model = LlamaForCausalLM.from_pretrained(
         base_model,
+        cache_dir=cache_dir,
         load_in_8bit=True,
         torch_dtype=torch.float16,
         device_map=device_map,
