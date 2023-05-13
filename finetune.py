@@ -37,6 +37,7 @@ def train(
     learning_rate: float = 3e-4,
     cutoff_len: int = 256,
     val_set_size: int = 2000,
+    eval_batch_size: int = 32,
     # lora hyperparams
     lora_r: int = 8,
     lora_alpha: int = 16,
@@ -55,10 +56,10 @@ def train(
     wandb_watch: str = "",  # options: false | gradients | all
     wandb_log_model: str = "",  # options: false | true
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
-    prompt_template_name: str = "alpaca",  # The prompt template to use, will default to alpaca.
     # training params
     save_steps: int = 100,
     eval_steps: int = 100,
+    save_total_limit: int = 1,
 ):
     if int(os.environ.get("LOCAL_RANK", 0)) == 0:
         print(
@@ -86,7 +87,6 @@ def train(
             f"wandb_watch: {wandb_watch}\n"
             f"wandb_log_model: {wandb_log_model}\n"
             f"resume_from_checkpoint: {resume_from_checkpoint or False}\n"
-            f"prompt template: {prompt_template_name}\n"
             f"save_steps: {save_steps}\n"
             f"eval_steps: {eval_steps}\n"
         )
@@ -94,6 +94,7 @@ def train(
         base_model
     ), "Please specify a --base_model, e.g. --base_model='huggyllama/llama-7b'"
     gradient_accumulation_steps = batch_size // micro_batch_size
+    eval_accumulation_steps = eval_batch_size // val_set_size
 
     device_map = "auto"
     world_size = int(os.environ.get("WORLD_SIZE", 1))
@@ -102,6 +103,7 @@ def train(
     if ddp:
         device_map = {"": int(os.environ.get("LOCAL_RANK") or 0)}
         gradient_accumulation_steps = gradient_accumulation_steps // world_size
+        eval_accumulation_steps = eval_accumulation_steps // world_size
 
     # Check if parameter passed or if set within environ
     use_wandb = len(wandb_project) > 0 or (
@@ -227,8 +229,8 @@ def train(
         args=transformers.TrainingArguments(
             per_device_train_batch_size=micro_batch_size,
             gradient_accumulation_steps=gradient_accumulation_steps,
-            per_device_eval_batch_size=micro_batch_size,
-            eval_accumulation_steps=gradient_accumulation_steps,
+            per_device_eval_batch_size=eval_batch_size,
+            eval_accumulation_steps=eval_accumulation_steps,
             warmup_steps=warmup_steps,
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
@@ -241,7 +243,7 @@ def train(
             eval_steps=eval_steps if val_set_size > 0 else None,
             save_steps=save_steps,
             output_dir=output_dir,
-            save_total_limit=3,
+            save_total_limit=save_total_limit,
             load_best_model_at_end=True if val_set_size > 0 else False,
             ddp_find_unused_parameters=False if ddp else None,
             group_by_length=group_by_length,
